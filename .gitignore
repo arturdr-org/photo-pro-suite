@@ -1,0 +1,22 @@
+# SO/Editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Python/cache (se usar scripts)
+__pycache__/
+*.pyc
+
+# Saídas geradas
+processed/
+enhanced/
+final/
+outputs/
+cache/
+tmp/
+
+# Arquivos grandes opcionais
+*.tif
+*.tiff
+*.psd

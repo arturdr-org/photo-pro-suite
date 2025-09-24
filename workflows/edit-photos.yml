@@ -1,0 +1,40 @@
+# Workflow conceitual para processamento em lote
+# Ajuste os caminhos/variáveis conforme seu ambiente
+
+vars:
+  RAW_DIR: ./raw
+  PROCESSED_DIR: ./processed/tiff
+  ENHANCED_DIR: ./enhanced/jpg
+  FINAL_DIR: ./final/ml-ready
+
+steps:
+  - name: process_raw
+    tool: rawtherapee
+    input: "${RAW_DIR}/*.CR2"
+    output: "${PROCESSED_DIR}/"
+    command: |
+      rawtherapee-cli \
+        -o ${PROCESSED_DIR} \
+        -c ${RAW_DIR}/*.CR2 \
+        -Y -n \
+        -p ./rawtherapee/presets/DEFAULT.pp3
+
+  - name: enhance_images
+    tool: gmic
+    input: "${PROCESSED_DIR}/*.tif"
+    output: "${ENHANCED_DIR}/"
+    command: |
+      gmic ${PROCESSED_DIR}/*.tif \
+        -fx_unsharp_octave 3,2,0.8,0,0 \
+        -o[0] ${ENHANCED_DIR}/%basename.jpg,quality=95
+
+  - name: final_resize
+    tool: imagemagick
+    input: "${ENHANCED_DIR}/*.jpg"
+    output: "${FINAL_DIR}/"
+    command: |
+      mkdir -p ${FINAL_DIR}
+      magick mogrify \
+        -path ${FINAL_DIR} \
+        -strip -resize 2048x2048 -quality 88 \
+        ${ENHANCED_DIR}/*.jpg
